@@ -49,7 +49,7 @@ class MissleObject(GameObject):
             y = int(self.y + 0.5)
             
             
-            if 0 <= x < Config.SCREEN_WIDTH and 0 <= y < Config.SCREEN_HEIGHT and ground[x,y,2] == 0:
+            if 0 <= x < Config.SCREEN_WIDTH and 0 <= y < Config.SCREEN_HEIGHT and ground[x,y,2] == Config.color_ground[2]:
                 
                 r = int(self.rect.width*0.5)
                 x0 = max(0, x-r)
@@ -57,7 +57,7 @@ class MissleObject(GameObject):
                 y0 = max(0, y-r)
                 y1 = min(Config.SCREEN_HEIGHT-1, y+r)
                 
-                ground[x0:x1, y0:y1, :] = (0,255,255)
+                ground[x0:x1, y0:y1, :] = Config.color_sky
 
                 self.valid = False
 
@@ -69,32 +69,23 @@ class MissleObject(GameObject):
         r2_thres = r_thres**2
 
         y0 = max(0, y_center - r_thres)
-        y1 = min(Config.SCREEN_HEIGHT-1, y_center + r_thres)
+        y1 = min(Config.SCREEN_HEIGHT-2, y_center + r_thres)
         x0 = max(0, x_center - r_thres)
-        x1 = min(Config.SCREEN_WIDTH-1, x_center + r_thres)
+        x1 = min(Config.SCREEN_WIDTH-2, x_center + r_thres)
+        if x1 > x0 and y1 > y0:
+            # dig the ground
+            xs = np.linspace(x0, x1+1, x1-x0+2, dtype=np.int32)
+            ys = np.linspace(y0, y1+1, y1-y0+2, dtype=np.int32)
+            xv, yv = np.meshgrid(xs, ys, indexing='xy')
+            
+            dx = xv - x_center
+            dy = yv - y_center
+            r2 = dx**2 + dy**2
+            idx = np.where(r2 < r2_thres)
 
-        # dig the ground
-        xs = np.linspace(x0, x1+1, x1-x0+2, dtype=np.int32)
-        ys = np.linspace(y0, y1+1, y1-y0+2, dtype=np.int32)
-        xv, yv = np.meshgrid(xs, ys, indexing='xy')
-        
-        dx = xv - x_center
-        dy = yv - y_center
-        r2 = dx**2 + dy**2
-        idx = np.where(r2 < r2_thres)
-
-        x_dig = xv[idx]
-        y_dig = yv[idx]
-        map[x_dig, y_dig] = Config.color_sky
-
-        # for x in range(x0, x1+1):
-        #     for y in range(y0, y1+1):
-        #         dx = x - x_center
-        #         dy = y - y_center
-        #         r2 = dx**2 + dy**2
-
-        #         if r2 < r2_thres:
-        #             ground[x,y,:] = (0,255,255)
+            x_dig = xv[idx]
+            y_dig = yv[idx]
+            map[x_dig, y_dig] = Config.color_sky
 
         # kill enemies
         list_enemies = sprites_enemies.sprites()

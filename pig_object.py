@@ -1,5 +1,6 @@
 from game_object import GameObject
 import math
+import numpy as np
 from config import Config
 
 class PigObject(GameObject):
@@ -40,22 +41,36 @@ class PigObject(GameObject):
         x = int(self.rect.left + self.rect.width*0.5 + 0.5)
         y = int(self.rect.bottom)
 
-        if x > 0:
+        if 0 <= x < Config.SCREEN_WIDTH:
             # find ground y
-            ground_y = 0
-            for i in range(Config.SCREEN_HEIGHT):
-                if map[x,i,2] == 0:
-                    ground_y = i
-                    break
+            ground_y = y
+            
+            while ground_y < Config.SCREEN_HEIGHT and map[x, ground_y, 2] == Config.color_sky[2]:
+                ground_y += 1
 
-            # v^2 = vx^2 + vy^2
+            # if the pig is over the ground
             if y < ground_y:
                 self.y += self.dy * dt
             
+            # if the pig is on / under the ground
             elif y >= ground_y:
                 
-                self.y -= self.dy * dt
-                self.x += self.dx * dt
+                if x > 0:
+                    # find the next y coordinate
+                    next_ground_y = ground_y - 20
+                    while next_ground_y < Config.SCREEN_HEIGHT and map[x-1, next_ground_y, 2] == Config.color_sky[2]:
+                        next_ground_y += 1
+
+                    dx = 1
+                    dy = next_ground_y - ground_y
+                    slope_angle = np.arctan2(dy, dx)
+
+                    if slope_angle > -80 * np.pi / 180:
+                        self.x += self.dx * np.cos(slope_angle) * dt
+                        self.y += self.dy * np.sin(slope_angle) * dt
+
+                else:
+                    self.x += self.dx * dt
 
             self.rect.left = int(self.x)
             self.rect.bottom = int(self.y)

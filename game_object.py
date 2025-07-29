@@ -4,20 +4,23 @@ import math
 from config import Config
 
 class GameObject(pg.sprite.Sprite):
-    ground = None
+    map = None
     ground_y_lut = None
 
     @staticmethod
-    def set_map(ground):
-        GameObject.ground = ground
-        width = ground.shape[0]
-        height = ground.shape[1]
+    def set_map(map):
+        GameObject.map = map
+        width = map.shape[0]
+        height = map.shape[1]
 
-        ground_y_lut = [0] * width
+        if GameObject.ground_y_lut is None:
+            GameObject.ground_y_lut = [0] * width
+
         for x in range(width):
-            for y in range(height):
-                if ground[x, y, 2] == Config.color_ground[2]:
-                    ground_y_lut[x] = y
+            y0 = GameObject.ground_y_lut[x]
+            for y in range(y0, height):
+                if map[x, y, 2] == Config.color_ground[2]:
+                    GameObject.ground_y_lut[x] = y
                     break
 
     def __init__(self):

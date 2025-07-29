@@ -61,22 +61,21 @@ while running:
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_UP]:
-        fire_angle += 0.1
+        fire_angle += 0.5
         if fire_angle >= 90:
             fire_angle = 90
     if keys[pygame.K_DOWN]:
-        fire_angle -= 0.1
-        if fire_angle <= -45:
-            fire_angle = -45
+        fire_angle -= 0.5
+        if fire_angle <= -90:
+            fire_angle = -90
     if keys[pygame.K_SPACE]:
         #bullet = BulletObject()
-
         if acc_time > MissleObject.last_fire_time + 1.0:
             MissleObject.last_fire_time = acc_time
             bullet = MissleObject()
             bullet.x = gun_x
             bullet.y = gun_y
-            v = 100
+            v = 150
             bullet.vx = v*np.cos(fire_angle * np.pi / 180)
             bullet.vy = -v*np.sin(fire_angle * np.pi / 180)
             
@@ -115,12 +114,11 @@ while running:
         else:
             sprites_enemies.remove(enemy)
 
-    # sprites.update()
-
+    # update ground lut
+    GameObject.set_map(map)
             
     sprites_enemies.draw(screen)
     sprites_bullets.draw(screen)
-
 
     # flip() the display to put your work on screen.
     pygame.display.flip()

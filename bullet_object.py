@@ -51,5 +51,4 @@ class BulletObject(GameObject):
                 y1 = min(Config.SCREEN_HEIGHT-1, y+r)
                 
                 map[x0:x1, y0:y1, :] = Config.color_sky
-
                 self.valid = False
